@@ -1,0 +1,47 @@
+{
+  "name": "zalo-bot-js",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for the Zalo Bot API.",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "require": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test:hello-bot": "npm run build && node ./dist/test/hello-bot.js",
+    "test:token": "npm run build && node ./dist/test/check-token.js",
+    "smoke": "node -e \"const sdk=require('./dist/src/index.js'); if(!sdk.Bot||!sdk.ApplicationBuilder||!sdk.filters){throw new Error('SDK exports are incomplete');} console.log('smoke ok');\"",
+    "test": "npm run check && npm run build && npm run smoke"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaiyoDev/zalo-bot-js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KaiyoDev/zalo-bot-js/issues"
+  },
+  "homepage": "https://github.com/KaiyoDev/zalo-bot-js#readme",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.0"
+  }
+}

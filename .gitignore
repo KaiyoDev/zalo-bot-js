@@ -137,3 +137,32 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzp
+*.pywp
+*.pyz
+*.pywp
+*.pyzp
+*.pywp
+*.pyzp
+*.pywp
+*.pyzp
+*.pywp
+*.pyzp
+*.pywp
+*.pyzp
+*.pywp
+*.pyzp
+*.pywp
+
+# Cursor
+.cursor/
