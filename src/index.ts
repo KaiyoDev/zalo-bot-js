@@ -12,6 +12,7 @@ export {
 } from "./errors";
 export { getLanguage, t } from "./i18n/runtime";
 export { Bot } from "./core/Bot";
+export { Bot as ZaloBot } from "./core/Bot";
 export { Application } from "./core/Application";
 export { ApplicationBuilder } from "./core/ApplicationBuilder";
 export { CallbackContext } from "./core/Context";
@@ -28,6 +29,7 @@ export { FetchRequest } from "./request/FetchRequest";
 export type { MessageKey, SupportedLanguage } from "./i18n/messages";
 export type {
   BotConfig,
+  BotConstructorOptions,
   BotEvent,
   BotEventCallback,
   EventMetadata,

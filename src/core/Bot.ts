@@ -15,7 +15,10 @@ export interface BotConfig {
   baseUrl?: string;
   request?: BaseRequest;
   pollingRequest?: BaseRequest;
+  polling?: boolean | PollingOptions;
 }
+
+export interface BotConstructorOptions extends Omit<BotConfig, "token"> {}
 
 export interface GetUpdatesParams {
   offset?: number;
@@ -64,7 +67,18 @@ export class Bot {
   private pollingTask?: Promise<void>;
   private nextUpdateOffset?: number;
 
-  constructor(private readonly config: BotConfig) {
+  private readonly config: BotConfig;
+
+  constructor(token: string, options?: BotConstructorOptions);
+  constructor(config: BotConfig);
+  constructor(tokenOrConfig: string | BotConfig, options: BotConstructorOptions = {}) {
+    const config =
+      typeof tokenOrConfig === "string"
+        ? { ...options, token: tokenOrConfig }
+        : tokenOrConfig;
+
+    this.config = config;
+
     if (!config.token) {
       throw new InvalidToken(t("error.invalidTokenInput"));
     }
@@ -75,6 +89,16 @@ export class Bot {
       config.pollingRequest ?? new FetchRequest(),
       config.request ?? new FetchRequest(),
     ];
+
+    if (config.polling) {
+      const pollingOptions =
+        typeof config.polling === "object" ? config.polling : undefined;
+      queueMicrotask(() => {
+        void this.startPolling(pollingOptions).catch((error) => {
+          console.error(t("app.pollingFetchError"), error);
+        });
+      });
+    }
   }
 
   async initialize(): Promise<void> {

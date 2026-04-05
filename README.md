@@ -1,83 +1,81 @@
 # zalo-bot-js
 
-SDK TypeScript cho Zalo Bot API với event listeners, long polling, webhook helpers, và log đa ngôn ngữ qua `ZALO_BOT_LANG`.
+![zalo-bot-js](image/zalo-bot-js.png)
 
-[Docs public](https://kaiyodev.github.io/zalo-bot-js) | [Tài liệu tiếng Việt](docs/vi/index.md) | [English docs](docs/en/index.md)
+TypeScript SDK for the Zalo Bot API with a practical node-style API: events, regex text handlers, long polling, webhook helpers, and CommonJS-friendly usage.
 
-## Tổng quan
+[Docs public](https://kaiyodev.github.io/zalo-bot-js) | [Tiếng Việt](docs/vi/index.md) | [English docs](docs/en/index.md)
 
-`zalo-bot-js` cung cấp phần lõi đủ dùng để xây bot Zalo bằng Node.js:
+## Features
 
-- khởi tạo bot từ token
-- lắng nghe event như `message`, `text`, `photo`, `sticker`
-- nhận update bằng polling hoặc webhook
-- gửi text/photo/sticker/chat action
-- xử lý text bằng regex với `bot.onText(...)`
-- hỗ trợ test thật bằng `.env`
-
-## Tính năng hiện có
-
-- `bot.on(event, callback)` với các event như `message`, `text`, `photo`, `sticker`
-- `bot.onText(regexp, callback)` để bắt text theo regex
-- `bot.startPolling()`, `bot.isPolling()`, `bot.processUpdate()`
+- `new Bot(token, { polling: true })` or `new Bot({ token, polling: true })`
+- `bot.on("message" | "text" | "photo" | "sticker" | "command", callback)`
+- `bot.onText(regexp, callback)` for regex-based text handlers
+- `bot.startPolling()`, `bot.stopPolling()`, `bot.isPolling()`
+- `bot.processUpdate(update)` for webhook flows
 - `bot.sendMessage()`, `bot.sendPhoto()`, `bot.sendSticker()`, `bot.sendChatAction()`
 - `bot.setWebHook()`, `bot.deleteWebHook()`, `bot.getWebHookInfo()`
-- `Bot.getMe()` và `bot.getUpdates()` để lấy thông tin bot/update
+- `bot.getMe()` and `bot.getUpdates()`
 
-## Trạng thái hiện tại
-
-Project hiện ổn cho các flow cơ bản, nhưng vẫn còn các phần chưa hoàn thiện:
-
-- upload media multipart đầy đủ
-- worker queue hoặc updater layer nâng cao
-- adapter webhook tách riêng cho từng framework
-- bộ test tự động sâu cho toàn bộ endpoint
-
-## Quick start
-
-### 1. Cài package
+## Installation
 
 ```bash
 npm i zalo-bot-js
 ```
 
-### 2. Tạo file `.env`
-
-Tạo `.env`:
+## Environment
 
 ```env
 ZALO_BOT_TOKEN=your_zalo_bot_token_here
 ZALO_BOT_LANG=vi
 ```
 
-`ZALO_BOT_LANG` hỗ trợ `vi` hoặc `en`. Nếu không cấu hình, project mặc định dùng tiếng Việt cho log runtime.
+`ZALO_BOT_LANG` currently supports `vi` and `en`.
 
-### 3. Viết bot đầu tiên
+## Quick Start
 
-```ts
-import "dotenv/config";
-import { Bot } from "zalo-bot-js";
+### CommonJS
 
-const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
+```js
+const { ZaloBot } = require("zalo-bot-js");
+require("dotenv").config();
+
+const bot = new ZaloBot(process.env.ZALO_BOT_TOKEN, {
+  polling: true,
+});
 
 bot.on("message", async (msg) => {
   console.log("Received message:", msg.text ?? msg.messageId);
 });
 
+bot.onText(/\/start (.+)/, async (msg, match) => {
+  await bot.sendMessage(msg.chat.id, `Ban vua gui: ${match[1]}`);
+});
+```
+
+### TypeScript / ESM-style import
+
+```ts
+import "dotenv/config";
+import { Bot } from "zalo-bot-js";
+
+const bot = new Bot(process.env.ZALO_BOT_TOKEN!, {
+  polling: true,
+});
+
 bot.on("text", async (msg) => {
   if (msg.text && !msg.text.startsWith("/")) {
-    await bot.sendMessage(msg.chat.id, `Bạn vừa nói: ${msg.text}`);
+    await bot.sendMessage(msg.chat.id, `Ban vua noi: ${msg.text}`);
   }
 });
 
-bot.onText(/\/start (.+)/, async (msg, match) => {
-  await bot.sendMessage(msg.chat.id, `Bạn vừa gửi: ${match[1]}`);
+bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
+  const payload = match[1]?.trim() ?? "ban";
+  await bot.sendMessage(msg.chat.id, `Xin chao ${payload}!`);
 });
-
-void bot.startPolling();
 ```
 
-### 4. Webhook cơ bản
+## Webhook Example
 
 ```ts
 import "dotenv/config";
@@ -85,8 +83,10 @@ import express from "express";
 import { Bot } from "zalo-bot-js";
 
 const app = express();
-const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
 const secretToken = process.env.ZALO_WEBHOOK_SECRET!;
+const bot = new Bot(process.env.ZALO_BOT_TOKEN!, {
+  polling: false,
+});
 
 app.use(express.json());
 
@@ -109,50 +109,75 @@ await bot.setWebHook(process.env.ZALO_WEBHOOK_URL!, {
 });
 ```
 
-### 5. Chạy trên source repo
+## Available API
 
-Nếu bạn đang làm việc trực tiếp trong repo:
+### Events
 
-```bash
-npm run test:token
-npm run test:hello-bot
-```
+- `bot.on(event, callback)`
+- `bot.onText(regexp, callback)`
 
-## Cấu trúc chính
+Supported event names today:
 
-- `src/request`: HTTP transport và API error mapping
+- `message`
+- `text`
+- `photo`
+- `sticker`
+- `command`
+
+### Sending
+
+- `bot.sendMessage(chatId, text, [options])`
+- `bot.sendPhoto(chatId, caption, photo, [options])`
+- `bot.sendSticker(chatId, sticker, [options])`
+- `bot.sendChatAction(chatId, action, [options])`
+
+### Polling and Webhook
+
+- `bot.startPolling([options])`
+- `bot.stopPolling()`
+- `bot.isPolling()`
+- `bot.processUpdate(update)`
+- `bot.setWebHook(url, [options])`
+- `bot.deleteWebHook()`
+- `bot.getWebHookInfo()`
+
+### Bot Information
+
+- `bot.getMe([options])`
+- `bot.getUpdates([options])`
+
+## Project Structure
+
+- `src/request`: transport and API error mapping
 - `src/models`: `User`, `Chat`, `Message`, `Update`, `WebhookInfo`
 - `src/core`: `Bot`, `Application`, `ApplicationBuilder`, `CallbackContext`
-- `src/handlers`: command và message handlers
+- `src/handlers`: legacy handler-based API
 - `src/filters`: composable filters
-- `src/i18n`: runtime messages và helper đổi ngôn ngữ log theo `ZALO_BOT_LANG`
-- `examples`: ví dụ polling và webhook
-- `test`: script thử token và bot thật bằng `.env`
+- `examples`: example integrations
+- `test`: local scripts and focused verification
 
-## Tài liệu
+## Development
 
-- Docs public: [kaiyodev.github.io/zalo-bot-js](https://kaiyodev.github.io/zalo-bot-js)
-- Tiếng Việt: [docs/vi/index.md](docs/vi/index.md)
-- English: [docs/en/index.md](docs/en/index.md)
+```bash
+npm run check
+npm run build
+npm test
+```
 
-## Scripts
+Useful local scripts:
 
-- `npm run build`: build thư viện TypeScript
-- `npm run check`: type-check không emit
-- `npm run test:token`: đọc token từ `.env` và gọi `getMe()`
-- `npm run test:hello-bot`: chạy bot polling để test `/start` và `hello`
-- `npm run docs:dev`: chạy docs local bằng VitePress
-- `npm run docs:build`: build static docs cho GitHub Pages
-- `npm run docs:preview`: preview docs đã build
-- `npm test`: chạy check, build và smoke test
+- `npm run test:token`
+- `npm run test:hello-bot`
+- `npm run test:event-debug`
+- `npm run test:bot-api`
 
-## Phát triển tiếp
+## Notes
 
-- hoàn thiện message/media payload handling
-- mở rộng webhook integration thực dụng hơn
-- chuẩn hóa thêm lỗi runtime và instrumentation
-- tăng độ phủ tài liệu và test tự động
+- The SDK currently focuses on the practical bot core first.
+- Multipart media upload is still incomplete.
+- Sending multiple images in a single native album-style Zalo message is not implemented.
+- `Application` and handler/filter APIs are still exported for backward compatibility.
 
-## English summary
+## License
 
-`zalo-bot-js` is a TypeScript SDK for the Zalo Bot API with a practical node-style bot core: token validation, event listeners, long polling, webhook helpers, env-driven test scripts, and bilingual documentation. See [English docs](docs/en/index.md) for full usage and architecture notes.
+MIT License. See `package.json` for the current project license metadata.

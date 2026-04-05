@@ -1,4 +1,4 @@
-import { Bot } from "../src";
+import { Bot, ZaloBot } from "../src";
 import type { JsonObject, RequestOptions } from "../src/types";
 import { BaseRequest, type RequestPayload } from "../src/request/BaseRequest";
 import { InvalidToken } from "../src/errors";
@@ -82,8 +82,7 @@ async function main() {
     getUpdates: [updatePayload],
   });
 
-  const bot = new Bot({
-    token: "test-token",
+  const bot = new Bot("test-token", {
     request,
     pollingRequest,
   });
@@ -157,6 +156,14 @@ async function main() {
 
   if (!invalidTokenRaised) {
     throw new Error("Expected InvalidToken for empty token");
+  }
+
+  const aliasBot = new ZaloBot("test-token", {
+    request,
+    pollingRequest,
+  });
+  if (!(aliasBot instanceof Bot)) {
+    throw new Error("Expected ZaloBot export to alias Bot");
   }
 
   console.log("bot api ok");

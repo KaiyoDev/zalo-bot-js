@@ -54,8 +54,38 @@ async function main() {
     });
   });
 
+  bot.onText(/\/test-multi-photo/, async (message) => {
+    const photoUrls = [
+      process.env.ZALO_TEST_PHOTO_URL_1,
+      process.env.ZALO_TEST_PHOTO_URL_2,
+      process.env.ZALO_TEST_PHOTO_URL_3,
+    ].filter((url): url is string => Boolean(url));
+    const sharedCaption = process.env.ZALO_TEST_PHOTO_CAPTION ?? "Shared caption";
+
+    if (photoUrls.length === 0) {
+      await bot.sendMessage(
+        message.chat.id,
+        "Missing ZALO_TEST_PHOTO_URL_1..3 in .env. Set image URLs first.",
+      );
+      return;
+    }
+
+    await bot.sendChatAction(message.chat.id, "typing");
+    await bot.sendMessage(
+      message.chat.id,
+      `Sending ${photoUrls.length} photos with the same caption because the SDK currently supports single-photo send only.`,
+    );
+
+    for (const photoUrl of photoUrls) {
+      await bot.sendPhoto(message.chat.id, sharedCaption, photoUrl, {
+        reply_to_message_id: message.messageId,
+      });
+    }
+  });
+
   console.log("Listening for Zalo events...");
   console.log("Send a message/sticker/photo to the bot to inspect chat and event payloads.");
+  console.log("Send /test-multi-photo to make the bot reply with test photos from .env.");
 
   await bot.startPolling();
 }
