@@ -1,18 +1,9 @@
-import { DEFAULT_POLL_TIMEOUT_SECONDS, DEFAULT_RETRY_DELAY_MS } from "../constants";
-import { TimedOut } from "../errors";
 import type { Handler } from "../handlers/BaseHandler";
-import { t } from "../i18n/runtime";
 import type { Update } from "../models/Update";
-import type { Bot } from "./Bot";
-
-export interface PollingOptions {
-  timeoutSeconds?: number;
-  retryDelayMs?: number;
-}
+import type { Bot, PollingOptions } from "./Bot";
 
 export class Application {
   private readonly handlers: Handler[] = [];
-  private running = false;
 
   constructor(public readonly bot: Bot) {}
 
@@ -30,39 +21,15 @@ export class Application {
   }
 
   async runPolling(options: PollingOptions = {}): Promise<void> {
-    const timeoutSeconds = options.timeoutSeconds ?? DEFAULT_POLL_TIMEOUT_SECONDS;
-    const retryDelayMs = options.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
-
-    await this.bot.initialize();
-    this.running = true;
-
-    try {
-      while (this.running) {
-        try {
-          const update = await this.bot.getUpdate({ timeout: timeoutSeconds });
-          if (update) {
-            await this.processUpdate(update);
-            continue;
-          }
-        } catch (error) {
-          // Long polling timeouts are expected when there are no updates.
-          if (!(error instanceof TimedOut)) {
-            console.error(t("app.pollingFetchError"), error);
-          }
-        }
-
-        await sleep(retryDelayMs);
-      }
-    } finally {
-      await this.bot.shutdown();
-    }
+    await this.bot.startPolling({
+      ...options,
+      onUpdate: async (update) => {
+        await this.processUpdate(update);
+      },
+    });
   }
 
   stop(): void {
-    this.running = false;
+    this.bot.stopPolling();
   }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

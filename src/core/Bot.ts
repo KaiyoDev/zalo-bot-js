@@ -1,5 +1,5 @@
-import { BASE_URL } from "../constants";
-import { InvalidToken } from "../errors";
+import { BASE_URL, DEFAULT_POLL_TIMEOUT_SECONDS, DEFAULT_RETRY_DELAY_MS } from "../constants";
+import { InvalidToken, TimedOut } from "../errors";
 import { t } from "../i18n/runtime";
 import { Chat } from "../models/Chat";
 import { Message } from "../models/Message";
@@ -17,11 +17,52 @@ export interface BotConfig {
   pollingRequest?: BaseRequest;
 }
 
+export interface GetUpdatesParams {
+  offset?: number;
+  limit?: number;
+  timeout?: number;
+  allowedUpdates?: string[];
+}
+
+export interface EventMetadata {
+  match?: RegExpExecArray;
+  update: Update;
+}
+
+export interface PollingOptions {
+  timeoutSeconds?: number;
+  retryDelayMs?: number;
+  allowedUpdates?: string[];
+  onUpdate?: (update: Update) => Promise<void> | void;
+}
+
+export type BotEvent =
+  | "message"
+  | "text"
+  | "photo"
+  | "sticker"
+  | "command";
+
+export type BotEventCallback = (
+  message: Message,
+  metadata: EventMetadata,
+) => Promise<void> | void;
+
+type TextListener = {
+  pattern: RegExp;
+  callback: (message: Message, match: RegExpExecArray) => Promise<void> | void;
+};
+
 export class Bot {
   private readonly baseUrl: string;
   private readonly request: [BaseRequest, BaseRequest];
   private initialized = false;
   private botUser?: User;
+  private readonly eventListeners = new Map<BotEvent, BotEventCallback[]>();
+  private readonly textListeners: TextListener[] = [];
+  private polling = false;
+  private pollingTask?: Promise<void>;
+  private nextUpdateOffset?: number;
 
   constructor(private readonly config: BotConfig) {
     if (!config.token) {
@@ -77,14 +118,17 @@ export class Bot {
   }
 
   async getUpdate(
-    params: {
-      offset?: number;
-      limit?: number;
-      timeout?: number;
-      allowedUpdates?: string[];
-    } = {},
+    params: GetUpdatesParams = {},
     options?: RequestOptions,
   ): Promise<Update | undefined> {
+    const updates = await this.getUpdates(params, options);
+    return updates[0];
+  }
+
+  async getUpdates(
+    params: GetUpdatesParams = {},
+    options?: RequestOptions,
+  ): Promise<Update[]> {
     const result = await this.post(
       "getUpdates",
       {
@@ -100,18 +144,19 @@ export class Bot {
       },
     );
 
-    return Update.fromApi(asJsonObject(result), this);
+    const payloads = asJsonObjectArray(result);
+    return payloads.map((payload) => Update.fromApi(payload, this)).filter(isDefined);
   }
 
   async sendMessage(
     chatId: string,
     text: string,
-    replyToMessageId?: string,
+    options?: { reply_to_message_id?: string },
   ): Promise<Message> {
     return this.sendMessageLike("sendMessage", {
       chat_id: chatId,
       text,
-      reply_to_message_id: replyToMessageId,
+      reply_to_message_id: options?.reply_to_message_id,
     });
   }
 
@@ -119,25 +164,25 @@ export class Bot {
     chatId: string,
     caption: string,
     photo: string,
-    replyToMessageId?: string,
+    options?: { reply_to_message_id?: string },
   ): Promise<Message> {
     return this.sendMessageLike("sendPhoto", {
       chat_id: chatId,
       caption,
       photo,
-      reply_to_message_id: replyToMessageId,
+      reply_to_message_id: options?.reply_to_message_id,
     });
   }
 
   async sendSticker(
     chatId: string,
     sticker: string,
-    replyToMessageId?: string,
+    options?: { reply_to_message_id?: string },
   ): Promise<Message> {
     return this.sendMessageLike("sendSticker", {
       chat_id: chatId,
       sticker,
-      reply_to_message_id: replyToMessageId,
+      reply_to_message_id: options?.reply_to_message_id,
     });
   }
 
@@ -173,8 +218,122 @@ export class Bot {
     return WebhookInfo.fromApi(asJsonObject(result));
   }
 
+  on(event: BotEvent, callback: BotEventCallback): this {
+    const listeners = this.eventListeners.get(event) ?? [];
+    listeners.push(callback);
+    this.eventListeners.set(event, listeners);
+    return this;
+  }
+
+  onText(
+    pattern: RegExp,
+    callback: (message: Message, match: RegExpExecArray) => Promise<void> | void,
+  ): this {
+    this.textListeners.push({ pattern, callback });
+    return this;
+  }
+
+  async processUpdate(update: Update | JsonObject): Promise<void> {
+    const normalizedUpdate = update instanceof Update ? update : Update.fromApi(update, this);
+    if (!normalizedUpdate?.message) {
+      return;
+    }
+
+    if (typeof normalizedUpdate.updateId === "number") {
+      this.nextUpdateOffset = normalizedUpdate.updateId + 1;
+    }
+
+    const metadata: EventMetadata = { update: normalizedUpdate };
+    for (const eventType of normalizedUpdate.eventTypes) {
+      const listeners = this.eventListeners.get(eventType as BotEvent) ?? [];
+      for (const listener of listeners) {
+        await listener(normalizedUpdate.message, metadata);
+      }
+    }
+
+    if (normalizedUpdate.message.text) {
+      for (const listener of this.textListeners) {
+        const match = createRegexMatcher(listener.pattern).exec(normalizedUpdate.message.text);
+        if (match) {
+          await listener.callback(normalizedUpdate.message, match);
+        }
+      }
+    }
+  }
+
+  startPolling(options: PollingOptions = {}): Promise<void> {
+    if (this.pollingTask) {
+      return this.pollingTask;
+    }
+
+    this.pollingTask = this.runPolling(options).finally(() => {
+      this.polling = false;
+      this.pollingTask = undefined;
+    });
+
+    return this.pollingTask;
+  }
+
+  stopPolling(): void {
+    this.polling = false;
+  }
+
+  isPolling(): boolean {
+    return this.polling;
+  }
+
+  async setWebHook(url: string, options?: { secret_token?: string }): Promise<boolean> {
+    return this.setWebhook(url, options?.secret_token ?? "");
+  }
+
+  async deleteWebHook(): Promise<boolean> {
+    return this.deleteWebhook();
+  }
+
+  async getWebHookInfo(): Promise<WebhookInfo | undefined> {
+    return this.getWebhookInfo();
+  }
+
   get cachedUser(): User | undefined {
     return this.botUser;
+  }
+
+  private async runPolling(options: PollingOptions): Promise<void> {
+    const timeoutSeconds = options.timeoutSeconds ?? DEFAULT_POLL_TIMEOUT_SECONDS;
+    const retryDelayMs = options.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
+
+    await this.initialize();
+    this.polling = true;
+
+    try {
+      while (this.polling) {
+        try {
+          const updates = await this.getUpdates({
+            timeout: timeoutSeconds,
+            offset: this.nextUpdateOffset,
+            allowedUpdates: options.allowedUpdates,
+          });
+
+          if (updates.length > 0) {
+            for (const update of updates) {
+              if (options.onUpdate) {
+                await options.onUpdate(update);
+              }
+              await this.processUpdate(update);
+            }
+            continue;
+          }
+        } catch (error) {
+          if (!(error instanceof TimedOut)) {
+            console.error(t("app.pollingFetchError"), error);
+          }
+        }
+
+        await sleep(retryDelayMs);
+      }
+    } finally {
+      await this.shutdown();
+    }
   }
 
   private async sendMessageLike(endpoint: string, data: RequestPayload): Promise<Message> {
@@ -247,4 +406,28 @@ function asJsonObject(
   }
 
   return value;
+}
+
+function asJsonObjectArray(
+  value: JsonObject | JsonObject[] | boolean | undefined,
+): JsonObject[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is JsonObject => Boolean(item) && typeof item === "object");
+  }
+
+  const singleValue = asJsonObject(value);
+  return singleValue ? [singleValue] : [];
+}
+
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
+}
+
+function createRegexMatcher(pattern: RegExp): RegExp {
+  const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+  return new RegExp(pattern.source, flags);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

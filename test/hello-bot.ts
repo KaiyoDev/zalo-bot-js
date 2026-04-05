@@ -1,11 +1,5 @@
 import { config as loadEnv } from "dotenv";
-import {
-  ApplicationBuilder,
-  CommandHandler,
-  MessageHandler,
-  filters,
-  type Update,
-} from "../src";
+import { Bot } from "../src";
 import { t } from "../src/i18n/runtime";
 
 async function main() {
@@ -16,28 +10,21 @@ async function main() {
     throw new Error(t("env.missingToken"));
   }
 
-  const app = new ApplicationBuilder().token(token).build();
-
-  app.addHandler(
-    new CommandHandler("start", async (update: Update) => {
-      await update.message?.replyText(t("reply.start"));
-    }),
-  );
-
-  app.addHandler(
-    new MessageHandler(filters.TEXT.and(filters.COMMAND.not()), async (update: Update) => {
-      const text = update.message?.text?.trim().toLowerCase();
-
-      if (text === "hello") {
-        await update.message?.replyText(t("reply.hello"));
-      }
-    }),
-  );
+  const bot = new Bot({ token });
+  bot.onText(/\/start/, async (message) => {
+    await bot.sendMessage(message.chat.id, t("reply.start"));
+  });
+  bot.on("text", async (message) => {
+    const text = message.text?.trim().toLowerCase();
+    if (text === "hello") {
+      await bot.sendMessage(message.chat.id, t("reply.hello"));
+    }
+  });
 
   console.log(t("app.pollingStarted"));
   console.log(t("app.pollingHint"));
 
-  await app.runPolling();
+  await bot.startPolling();
 }
 
 void main().catch((error) => {

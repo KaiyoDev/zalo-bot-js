@@ -1,6 +1,6 @@
 # zalo-bot-js
 
-SDK TypeScript cho Zalo Bot API với long polling, webhook helper, command/message handlers, filters và log đa ngôn ngữ qua `ZALO_BOT_LANG`.
+SDK TypeScript cho Zalo Bot API với event listeners, long polling, webhook helpers, và log đa ngôn ngữ qua `ZALO_BOT_LANG`.
 
 [Docs public](https://kaiyodev.github.io/zalo-bot-js) | [Tài liệu tiếng Việt](docs/vi/index.md) | [English docs](docs/en/index.md)
 
@@ -9,20 +9,20 @@ SDK TypeScript cho Zalo Bot API với long polling, webhook helper, command/mess
 `zalo-bot-js` cung cấp phần lõi đủ dùng để xây bot Zalo bằng Node.js:
 
 - khởi tạo bot từ token
-- nhận update bằng polling
+- lắng nghe event như `message`, `text`, `photo`, `sticker`
+- nhận update bằng polling hoặc webhook
 - gửi text/photo/sticker/chat action
-- xử lý command và text message rõ ràng
-- dùng webhook khi cần tích hợp với server của bạn
+- xử lý text bằng regex với `bot.onText(...)`
 - hỗ trợ test thật bằng `.env`
 
 ## Tính năng hiện có
 
-- `Bot.getMe()` để kiểm tra token và lấy thông tin bot
-- `Application.runPolling()` để nhận update bằng long polling
-- `sendMessage`, `sendPhoto`, `sendSticker`, `sendChatAction`
-- `setWebhook`, `deleteWebhook`, `getWebhookInfo`
-- routing theo command và filter
-- fallback parse cho payload phản hồi mỏng từ API
+- `bot.on(event, callback)` với các event như `message`, `text`, `photo`, `sticker`
+- `bot.onText(regexp, callback)` để bắt text theo regex
+- `bot.startPolling()`, `bot.isPolling()`, `bot.processUpdate()`
+- `bot.sendMessage()`, `bot.sendPhoto()`, `bot.sendSticker()`, `bot.sendChatAction()`
+- `bot.setWebHook()`, `bot.deleteWebHook()`, `bot.getWebHookInfo()`
+- `Bot.getMe()` và `bot.getUpdates()` để lấy thông tin bot/update
 
 ## Trạng thái hiện tại
 
@@ -56,31 +56,60 @@ ZALO_BOT_LANG=vi
 
 ```ts
 import "dotenv/config";
-import {
-  ApplicationBuilder,
-  CommandHandler,
-  MessageHandler,
-  filters,
-} from "zalo-bot-js";
+import { Bot } from "zalo-bot-js";
 
-const app = new ApplicationBuilder()
-  .token(process.env.ZALO_BOT_TOKEN!)
-  .build();
+const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
 
-app.addHandler(new CommandHandler("start", async (update) => {
-  await update.message?.replyText("Xin chào từ zalo-bot-js");
-}));
+bot.on("message", async (msg) => {
+  console.log("Received message:", msg.text ?? msg.messageId);
+});
 
-app.addHandler(
-  new MessageHandler(filters.TEXT.and(filters.COMMAND.not()), async (update) => {
-    await update.message?.replyText(`Bạn vừa nói: ${update.message?.text ?? ""}`);
-  }),
-);
+bot.on("text", async (msg) => {
+  if (msg.text && !msg.text.startsWith("/")) {
+    await bot.sendMessage(msg.chat.id, `Bạn vừa nói: ${msg.text}`);
+  }
+});
 
-void app.runPolling();
+bot.onText(/\/start (.+)/, async (msg, match) => {
+  await bot.sendMessage(msg.chat.id, `Bạn vừa gửi: ${match[1]}`);
+});
+
+void bot.startPolling();
 ```
 
-### 4. Chạy trên source repo
+### 4. Webhook cơ bản
+
+```ts
+import "dotenv/config";
+import express from "express";
+import { Bot } from "zalo-bot-js";
+
+const app = express();
+const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
+const secretToken = process.env.ZALO_WEBHOOK_SECRET!;
+
+app.use(express.json());
+
+bot.on("message", async (msg) => {
+  await bot.sendMessage(msg.chat.id, "Xin chao!");
+});
+
+app.post("/webhook", async (req, res) => {
+  if (req.headers["x-bot-api-secret-token"] !== secretToken) {
+    res.status(403).json({ message: "Unauthorized" });
+    return;
+  }
+
+  await bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+await bot.setWebHook(process.env.ZALO_WEBHOOK_URL!, {
+  secret_token: secretToken,
+});
+```
+
+### 5. Chạy trên source repo
 
 Nếu bạn đang làm việc trực tiếp trong repo:
 
@@ -126,4 +155,4 @@ npm run test:hello-bot
 
 ## English summary
 
-`zalo-bot-js` is a TypeScript SDK for the Zalo Bot API with a practical core: token validation, long polling, webhook helpers, handlers, filters, env-driven test scripts, and bilingual documentation. See [English docs](docs/en/index.md) for full usage and architecture notes.
+`zalo-bot-js` is a TypeScript SDK for the Zalo Bot API with a practical node-style bot core: token validation, event listeners, long polling, webhook helpers, env-driven test scripts, and bilingual documentation. See [English docs](docs/en/index.md) for full usage and architecture notes.

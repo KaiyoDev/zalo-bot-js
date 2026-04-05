@@ -1,6 +1,6 @@
 {
   "name": "zalo-bot-js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for the Zalo Bot API.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -10,15 +10,21 @@
       "require": "./dist/src/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc --noEmit -p tsconfig.json",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build",
     "test:hello-bot": "npm run build && node ./dist/test/hello-bot.js",
     "test:token": "npm run build && node ./dist/test/check-token.js",
-    "smoke": "node -e \"const sdk=require('./dist/src/index.js'); if(!sdk.Bot||!sdk.ApplicationBuilder||!sdk.filters){throw new Error('SDK exports are incomplete');} console.log('smoke ok');\"",
+    "smoke": "node -e \"const sdk=require('./dist/src/index.js'); const bot=new sdk.Bot({token:'test-token',request:{initialize:async()=>{},shutdown:async()=>{},post:async()=>({id:'1'})},pollingRequest:{initialize:async()=>{},shutdown:async()=>{},post:async()=>[]}}); if(!sdk.Bot||!sdk.ApplicationBuilder||!sdk.filters){throw new Error('SDK exports are incomplete');} if(typeof bot.on!=='function'||typeof bot.onText!=='function'||typeof bot.startPolling!=='function'||typeof bot.processUpdate!=='function'||typeof bot.setWebHook!=='function'){throw new Error('Node-style bot API is incomplete');} console.log('smoke ok');\"",
     "test": "npm run check && npm run build && npm run smoke"
   },
   "repository": {

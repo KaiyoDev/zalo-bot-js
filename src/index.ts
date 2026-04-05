@@ -26,8 +26,14 @@ export { WebhookInfo } from "./models/WebhookInfo";
 export { BaseRequest } from "./request/BaseRequest";
 export { FetchRequest } from "./request/FetchRequest";
 export type { MessageKey, SupportedLanguage } from "./i18n/messages";
-export type { BotConfig } from "./core/Bot";
-export type { PollingOptions } from "./core/Application";
+export type {
+  BotConfig,
+  BotEvent,
+  BotEventCallback,
+  EventMetadata,
+  GetUpdatesParams,
+  PollingOptions,
+} from "./core/Bot";
 export type { Filter } from "./filters";
 export type { Handler, HandlerCallback } from "./handlers/BaseHandler";
 export type { JsonObject, JsonValue, RequestOptions } from "./types";

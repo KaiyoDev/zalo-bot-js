@@ -1,17 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { Bot, CommandHandler, MessageHandler, filters, Application, Update } from "../src";
-
-async function start(update: Update) {
-  await update.message?.replyText("Xin chao tu webhook TypeScript.");
-}
-
-async function echo(update: Update) {
-  if (!update.message?.text) {
-    return;
-  }
-
-  await update.message.replyText(`Webhook nhan: ${update.message.text}`);
-}
+import { Bot } from "../src";
 
 async function main() {
   const token = process.env.ZALO_BOT_TOKEN;
@@ -23,12 +11,18 @@ async function main() {
   }
 
   const bot = new Bot({ token });
-  const app = new Application(bot);
-  app.addHandler(new CommandHandler("start", start));
-  app.addHandler(new MessageHandler(filters.TEXT.and(filters.COMMAND.not()), echo));
+  bot.on("message", async (message) => {
+    await bot.sendMessage(message.chat.id, "Xin chao!");
+  });
 
-  await bot.initialize();
-  await bot.setWebhook(webhookUrl, secretToken);
+  bot.onText(/\/start(?:\s+(.+))?/, async (message, match) => {
+    const payload = match[1]?.trim() ?? "ban";
+    await bot.sendMessage(message.chat.id, `Webhook nhan /start tu ${payload}`);
+  });
+
+  await bot.setWebHook(webhookUrl, {
+    secret_token: secretToken,
+  });
 
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     if (req.method !== "POST" || req.url !== "/webhook") {
@@ -37,13 +31,15 @@ async function main() {
       return;
     }
 
-    const body = await readBody(req);
-    const payload = JSON.parse(body) as { result?: Record<string, unknown> };
-    const update = Update.fromApi(payload.result as never, bot);
-
-    if (update) {
-      await app.processUpdate(update);
+    if (req.headers["x-bot-api-secret-token"] !== secretToken) {
+      res.statusCode = 403;
+      res.end("unauthorized");
+      return;
     }
+
+    const body = await readBody(req);
+    const payload = JSON.parse(body) as Record<string, unknown>;
+    await bot.processUpdate(payload as never);
 
     res.statusCode = 200;
     res.end("ok");
