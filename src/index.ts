@@ -23,7 +23,7 @@ export { Chat } from "./models/Chat";
 export { Message } from "./models/Message";
 export { Update } from "./models/Update";
 export { User } from "./models/User";
-export { WebhookInfo, WebhookResultModel } from "./models/WebhookInfo";
+export { WebhookInfo, WebhookResultModel, TestWebhookResultModel } from "./models/WebhookInfo";
 export { BaseRequest } from "./request/BaseRequest";
 export { FetchRequest } from "./request/FetchRequest";
 export type { MessageKey, SupportedLanguage } from "./i18n/messages";
@@ -76,4 +76,5 @@ export type {
   TimeoutProfile,
 } from "./types";
 export type { WebhookVerificationResult, WebhookResult } from "./models/WebhookInfo";
+export type { TestWebhookResult } from "./models/WebhookInfo";
 export type { ParsedCommand } from "./models/Update";

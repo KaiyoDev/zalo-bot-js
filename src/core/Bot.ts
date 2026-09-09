@@ -5,7 +5,7 @@ import { Chat } from "../models/Chat";
 import { Message } from "../models/Message";
 import { type ParsedCommand, Update } from "../models/Update";
 import { User } from "../models/User";
-import { WebhookInfo, WebhookResultModel, type WebhookResult } from "../models/WebhookInfo";
+import { WebhookInfo, WebhookResultModel, type WebhookResult, TestWebhookResultModel, type TestWebhookResult } from "../models/WebhookInfo";
 import { BaseRequest, type RequestPayload } from "../request/BaseRequest";
 import { FetchRequest } from "../request/FetchRequest";
 import type { JsonObject, RequestOptions } from "../types";
@@ -402,6 +402,11 @@ export class Bot {
   async getWebhookInfo(options?: RequestOptions): Promise<WebhookInfo | undefined> {
     const result = await this.post("getWebhookInfo", undefined, options);
     return WebhookInfo.fromApi(asJsonObject(result));
+  }
+
+  async testWebhook(options?: RequestOptions): Promise<TestWebhookResult | undefined> {
+    const result = await this.post("testWebhook", undefined, options);
+    return TestWebhookResultModel.fromApi(asJsonObject(result));
   }
 
   async editMessageText(

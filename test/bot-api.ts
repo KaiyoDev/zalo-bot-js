@@ -205,6 +205,15 @@ async function main() {
         hint: "Your endpoint responded successfully.",
       },
     },
+    testWebhook: {
+      ok: true,
+      result: {
+        ok: true,
+        url: "https://example.com/webhook",
+        outcome: "webhook.ok",
+        hint: "Your endpoint responded successfully.",
+      },
+    },
     deleteWebhook: true,
     getWebhookInfo: webhookInfoResult,
   });
@@ -385,9 +394,14 @@ async function main() {
   });
   const webhookDeleted = await bot.deleteWebHook();
   const webhookInfo = await bot.getWebHookInfo();
+  const webhookTest = await bot.testWebhook();
 
   if (!webhookSet?.url || !webhookDeleted || webhookInfo?.url !== "https://example.com/webhook") {
     throw new Error("Webhook helpers failed");
+  }
+
+  if (!webhookTest?.ok || webhookTest.outcome !== "webhook.ok") {
+    throw new Error("testWebhook failed");
   }
 
   const sent = await bot.sendMessage("chat-1", "ok");

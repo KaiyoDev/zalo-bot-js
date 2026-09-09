@@ -65,3 +65,34 @@ export class WebhookResultModel {
     );
   }
 }
+
+export interface TestWebhookResult {
+  ok: boolean;
+  url: string;
+  outcome: string;
+  hint?: string;
+}
+
+export class TestWebhookResultModel {
+  constructor(
+    public readonly ok: boolean,
+    public readonly url: string,
+    public readonly outcome: string,
+    public readonly hint?: string,
+    public readonly raw?: JsonObject,
+  ) {}
+
+  static fromApi(data?: JsonObject): TestWebhookResultModel | undefined {
+    if (!data || !data.result) {
+      return undefined;
+    }
+
+    const result = data.result as JsonObject;
+    const ok = typeof data.ok === "boolean" ? data.ok : false;
+    const url = typeof result.url === "string" ? result.url : "";
+    const outcome = typeof result.outcome === "string" ? result.outcome : "";
+    const hint = typeof result.hint === "string" ? result.hint : undefined;
+
+    return new TestWebhookResultModel(ok, url, outcome, hint, data);
+  }
+}
