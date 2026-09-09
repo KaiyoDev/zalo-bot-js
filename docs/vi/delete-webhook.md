@@ -7,7 +7,7 @@ Hàm này hữu ích khi bạn muốn chuyển bot từ webhook sang polling ho�
 ## Chữ ký hàm
 
 ```ts
-deleteWebhook(): Promise<boolean>
+deleteWebhook(options?: WebhookOptions): Promise<boolean>
 ```
 
 ## Khi nào nên dùng

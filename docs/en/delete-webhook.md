@@ -7,7 +7,7 @@ This function is useful when you want to switch bots from webhooks to polling or
 ## Function signature
 
 ```ts
-deleteWebhook(): Promise<boolean>
+deleteWebhook(options?: WebhookOptions): Promise<boolean>
 ```
 
 ## When should you use it?
