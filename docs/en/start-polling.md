@@ -1,4 +1,4 @@
-# startPolling
+﻿# startPolling
 
 This page describes the `startPolling()`, `stopPolling()`, and `isPolling()` functions in `zalo-bot-js`, used to run the bot in polling mode.
 
@@ -27,7 +27,6 @@ isPolling(): boolean
 ## Example
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

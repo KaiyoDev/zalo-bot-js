@@ -1,4 +1,4 @@
-# initialize
+﻿# initialize
 
 Trang này mô tả hàm `initialize()` trong `zalo-bot-js`, dùng để khởi tạo transport nội bộ và xác minh token bot trước khi hệ thống bắt đầu xử lý chính thức.
 
@@ -27,7 +27,6 @@ Khi được gọi, SDK sẽ:
 ## Ví dụ
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

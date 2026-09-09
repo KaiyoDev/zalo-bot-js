@@ -1,4 +1,4 @@
-# startPolling
+﻿# startPolling
 
 Trang này mô tả ba hàm `startPolling()`, `stopPolling()` và `isPolling()` trong `zalo-bot-js`, dùng để vận hành bot theo cơ chế polling.
 
@@ -45,7 +45,6 @@ Hàm này:
 ### Ví dụ tối thiểu
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

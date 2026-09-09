@@ -1,4 +1,4 @@
-# initialize
+﻿# initialize
 
 This page describes the `initialize()` function in `zalo-bot-js`, used to initialize internal transports and validate the bot token before the runtime starts processing updates.
 
@@ -27,7 +27,6 @@ When called, the SDK will:
 ## Example
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
