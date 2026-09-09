@@ -146,20 +146,6 @@ Script này hữu ích khi bạn muốn xác nhận cùng lúc:
 - handler match đúng
 - bot gửi reply thành công
 
-## Test nhanh admin flow
-
-Khi chạy `npm run test:hello-bot` với polling runtime:
-
-1. nhắn `/id` để lấy id account và xem trạng thái `admin=true/false`
-2. nếu chưa có admin, nhắn `/setadmin` để lưu `ZALO_BOT_ADMIN_ID` vào `.env`
-3. nhắn lại `/id` để xác nhận tài khoản admin sẽ có `admin=true`
-
-Lưu ý:
-
-- `/setadmin` chỉ chạy được một lần
-- sau khi đã set, bot sẽ từ chối mọi lần set lại
-- trong code xử lý lệnh, có thể kiểm tra bằng `message.admin` hoặc `bot.isAdmin(message.fromUser?.id)`
-
 ## Các script hữu ích
 
 - `npm run build`

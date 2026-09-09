@@ -144,20 +144,6 @@ This script is useful when you want to confirm at the same time:
 - handler match is correct
 - bot sent reply successfully
 
-## Quick admin flow test
-
-When running `npm run test:hello-bot` with polling runtime:
-
-1. send `/id` to get your account id and current `admin=true/false` status
-2. if admin is not configured yet, send `/setadmin` to persist `ZALO_BOT_ADMIN_ID` into `.env`
-3. send `/id` again to confirm the admin account now shows `admin=true`
-
-Notes:
-
-- `/setadmin` works once only
-- after it is set, the bot refuses any reset attempts
-- in command handlers, check admin with `message.admin` or `bot.isAdmin(message.fromUser?.id)`
-
 ## Useful scripts
 
 - `npm run build`
