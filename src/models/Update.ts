@@ -64,7 +64,7 @@ export class Update {
   }
 
   get command(): ParsedCommand | undefined {
-    return parseCommand(this.message?.text);
+    return parseCommand(this.message?.text, this.effectiveUser?.id);
   }
 
   static fromApi(data?: JsonObject, bot?: Bot): Update | undefined {
@@ -102,12 +102,19 @@ function asJsonObject(value: unknown): JsonObject | undefined {
   return value as JsonObject;
 }
 
-export function parseCommand(text: string | undefined): ParsedCommand | undefined {
+export function parseCommand(text: string | undefined, botAccountId?: string): ParsedCommand | undefined {
   if (!text) {
     return undefined;
   }
 
-  const normalized = text.trim();
+  let normalized = text.trim();
+
+  // Handle @mention in groups: strip "@BotName " prefix
+  if (botAccountId && normalized.includes("@")) {
+    const mentionRegex = new RegExp(`^@[\\w\\s]+\\s+`, "i");
+    normalized = normalized.replace(mentionRegex, "");
+  }
+
   if (!normalized.startsWith("/") || normalized.length <= 1) {
     return undefined;
   }
