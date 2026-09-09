@@ -1,4 +1,4 @@
-# MessageHandler
+﻿# MessageHandler
 
 This page describes `MessageHandler` in `zalo-bot-js`, a handler used to process updates based on `filters`.
 
@@ -19,7 +19,6 @@ The handler runs when:
 ## Example
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder, MessageHandler, filters } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()

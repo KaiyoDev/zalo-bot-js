@@ -1,4 +1,4 @@
-# CommandHandler
+﻿# CommandHandler
 
 This page describes `CommandHandler` in `zalo-bot-js`, a handler used to capture commands with syntax like `/start`.
 
@@ -16,7 +16,6 @@ This Handler:
 ## For example
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder, CommandHandler } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()

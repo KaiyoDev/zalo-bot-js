@@ -1,4 +1,4 @@
-# MessageHandler
+﻿# MessageHandler
 
 Trang này mô tả `MessageHandler` trong `zalo-bot-js`, handler dùng để xử lý update dựa trên `filters`.
 
@@ -19,7 +19,6 @@ Handler sẽ chạy khi:
 ## Ví dụ
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder, MessageHandler, filters } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()
