@@ -9,6 +9,16 @@ export interface ParsedCommand {
   args: string[];
 }
 
+export interface WebhookEventResult {
+  eventName: string;
+  message?: JsonObject;
+}
+
+export interface WebhookPayload {
+  ok: boolean;
+  result: WebhookEventResult;
+}
+
 export class Update {
   constructor(
     public readonly updateId?: number,
@@ -42,6 +52,10 @@ export class Update {
       eventTypes.add("sticker");
     }
 
+    if (this.message?.voiceUrl) {
+      eventTypes.add("voice");
+    }
+
     return [...eventTypes];
   }
 
@@ -58,6 +72,17 @@ export class Update {
       return undefined;
     }
 
+    // Handle new Zalo webhook format: { ok: true, result: { event_name, message } }
+    const rawData = data as Record<string, unknown>;
+    if (rawData.ok === true && rawData.result && typeof rawData.result === "object") {
+      const result = rawData.result as Record<string, unknown>;
+      const messageData = result.message as JsonObject | undefined;
+      if (messageData) {
+        return new Update(undefined, Message.fromApi(messageData, bot), data);
+      }
+    }
+
+    // Handle legacy polling format: { update_id, message }
     const updateId =
       typeof data.update_id === "number"
         ? data.update_id

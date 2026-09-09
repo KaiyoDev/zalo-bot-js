@@ -12,6 +12,8 @@ export interface MessageInit {
   text?: string;
   sticker?: string;
   photoUrl?: string;
+  voiceUrl?: string;
+  caption?: string;
   fromUser?: User;
   admin?: boolean;
   raw?: JsonObject;
@@ -26,6 +28,8 @@ export class Message {
   readonly text?: string;
   readonly sticker?: string;
   readonly photoUrl?: string;
+  readonly voiceUrl?: string;
+  readonly caption?: string;
   readonly fromUser?: User;
   readonly admin: boolean;
   readonly raw?: JsonObject;
@@ -39,6 +43,8 @@ export class Message {
     this.text = init.text;
     this.sticker = init.sticker;
     this.photoUrl = init.photoUrl;
+    this.voiceUrl = init.voiceUrl;
+    this.caption = init.caption;
     this.fromUser = init.fromUser;
     this.admin = init.admin ?? false;
     this.raw = init.raw;
@@ -76,6 +82,8 @@ export class Message {
       text: typeof data.text === "string" ? data.text : undefined,
       sticker: typeof data.sticker === "string" ? data.sticker : undefined,
       photoUrl: typeof data.photo_url === "string" ? data.photo_url : undefined,
+      voiceUrl: typeof data.voice_url === "string" ? data.voice_url : undefined,
+      caption: typeof data.caption === "string" ? data.caption : undefined,
       fromUser,
       admin: bot?.isAdmin(fromUser?.id),
       raw: data,
@@ -96,6 +104,10 @@ export class Message {
 
   replyAction(action: string): Promise<boolean> {
     return this.requireBot().sendChatAction(this.chat.id, action);
+  }
+
+  replyVoice(voiceUrl: string): Promise<Message> {
+    return this.requireBot().sendVoice(this.chat.id, voiceUrl);
   }
 
   private requireBot(): Bot {

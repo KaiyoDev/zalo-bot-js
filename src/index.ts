@@ -80,4 +80,4 @@ export type {
 } from "./types";
 export type { WebhookVerificationResult, WebhookResult } from "./models/WebhookInfo";
 export type { TestWebhookResult } from "./models/WebhookInfo";
-export type { ParsedCommand } from "./models/Update";
+export type { ParsedCommand, WebhookEventResult, WebhookPayload } from "./models/Update";
