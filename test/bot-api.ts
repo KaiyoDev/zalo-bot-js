@@ -195,7 +195,16 @@ async function main() {
     getFileDownloadUrl: {
       file_url: "https://example.com/files/1",
     },
-    setWebhook: true,
+    setWebhook: {
+      url: "https://example.com/webhook",
+      updated_at: 1749538250568,
+      verification: {
+        ok: true,
+        url: "https://example.com/webhook",
+        outcome: "webhook.ok",
+        hint: "Your endpoint responded successfully.",
+      },
+    },
     deleteWebhook: true,
     getWebhookInfo: webhookInfoResult,
   });
@@ -377,7 +386,7 @@ async function main() {
   const webhookDeleted = await bot.deleteWebHook();
   const webhookInfo = await bot.getWebHookInfo();
 
-  if (!webhookSet || !webhookDeleted || webhookInfo?.url !== "https://example.com/webhook") {
+  if (!webhookSet?.url || !webhookDeleted || webhookInfo?.url !== "https://example.com/webhook") {
     throw new Error("Webhook helpers failed");
   }
 
