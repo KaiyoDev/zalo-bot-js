@@ -1,4 +1,4 @@
-# Gửi ảnh
+﻿# Gửi ảnh
 
 Trang này mô tả hàm `sendPhoto()` trong `zalo-bot-js`, dùng để gửi một ảnh kèm caption đến người dùng hoặc cuộc trò chuyện.
 
@@ -39,7 +39,6 @@ Khi thành công, SDK parse phản hồi thành `Message` để bạn đọc ti�
 ## Ví dụ tối thiểu
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

@@ -1,4 +1,4 @@
-# sendMessage
+﻿# sendMessage
 
 This page describes the `sendMessage()` function in `zalo-bot-js`, used to send a text message to a user or chat through the SDK.
 
@@ -36,7 +36,6 @@ The function returns `Promise<Message>`.
 ## Minimal example
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

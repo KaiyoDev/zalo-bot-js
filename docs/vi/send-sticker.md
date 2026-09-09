@@ -1,4 +1,4 @@
-# Gửi sticker
+﻿# Gửi sticker
 
 Trang này mô tả hàm `sendSticker()` trong `zalo-bot-js`, dùng để gửi sticker đến người dùng hoặc cuộc trò chuyện.
 
@@ -35,7 +35,6 @@ Hàm trả về `Promise<Message>`.
 ## Ví dụ tối thiểu
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

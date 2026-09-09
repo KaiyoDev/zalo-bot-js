@@ -1,4 +1,4 @@
-# Gửi tin nhắn văn bản
+﻿# Gửi tin nhắn văn bản
 
 Trang này mô tả hàm `sendMessage()` trong `zalo-bot-js`, dùng để gửi tin nhắn văn bản đến người dùng hoặc cuộc trò chuyện từ chính SDK của dự án.
 
@@ -46,7 +46,6 @@ Khi thành công, bạn nhận được một instance `Message` đã được p
 ## Ví dụ tối thiểu
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
@@ -66,7 +65,6 @@ void main();
 Đây là cách dùng phổ biến nhất khi bot đang chạy và cần phản hồi người dùng ngay sau khi nhận tin nhắn.
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
@@ -103,7 +101,6 @@ bot.on("text", async (message) => {
 Khi chạy webhook, bạn thường gọi `sendMessage()` sau khi `processUpdate()` hoặc ngay trong callback event.
 
 ```ts
-import "dotenv/config";
 import { createServer } from "node:http";
 import { Bot } from "zalo-bot-js";
 
