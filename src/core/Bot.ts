@@ -136,6 +136,7 @@ export type BotEvent =
   | "text"
   | "photo"
   | "sticker"
+  | "voice"
   | "command";
 
 export type BotEventCallback = (

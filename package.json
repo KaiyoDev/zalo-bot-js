@@ -28,6 +28,7 @@
     "test:event-debug": "node --env-file=.env ./dist/test/event-debug.js",
     "test:hello-bot": "node --env-file=.env ./dist/test/hello-bot.js",
     "test:token": "node --env-file=.env ./dist/test/check-token.js",
+    "test:polling-chat-type": "node --env-file=.env ./dist/test/polling-chat-type.js",
     "smoke": "node -e \"const sdk=require('./dist/src/index.js'); const bot=new sdk.Bot({token:'test-token',request:{initialize:async()=>{},shutdown:async()=>{},post:async()=>({id:'1'})},pollingRequest:{initialize:async()=>{},shutdown:async()=>{},post:async()=>[]}}); if(!sdk.Bot||!sdk.ApplicationBuilder||!sdk.filters){throw new Error('SDK exports are incomplete');} if(typeof bot.on!=='function'||typeof bot.onText!=='function'||typeof bot.startPolling!=='function'||typeof bot.processUpdate!=='function'||typeof bot.setWebHook!=='function'){throw new Error('Node-style bot API is incomplete');} console.log('smoke ok');\"",
     "test": "npm run check && npm run build && npm run smoke && npm run test:bot-api"
   },
