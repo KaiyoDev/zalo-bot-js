@@ -1,4 +1,4 @@
-# getMe
+﻿# getMe
 
 Trang này mô tả hàm `getMe()` trong `zalo-bot-js`, dùng để lấy thông tin bot hiện tại và xác minh token đang hoạt động hợp lệ.
 
@@ -25,7 +25,6 @@ Khi thành công, bạn nhận được một instance `User` đã được pars
 ## Ví dụ tối thiểu
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

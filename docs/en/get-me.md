@@ -1,4 +1,4 @@
-# getMe
+﻿# getMe
 
 This page describes the `getMe()` function in `zalo-bot-js`, used to retrieve the current bot profile and validate that the token is working correctly.
 
@@ -25,7 +25,6 @@ When successful, you receive a parsed `User` model instance.
 ## Example
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

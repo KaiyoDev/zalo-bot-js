@@ -1,4 +1,4 @@
-# getUpdates
+﻿# getUpdates
 
 Trang này mô tả hai hàm `getUpdates()` và `getUpdate()` trong `zalo-bot-js`, dùng để lấy update từ Bot API theo cơ chế polling thủ công.
 
@@ -66,7 +66,6 @@ Mỗi `Update` đã được parse thành model của SDK, có thể truy cập:
 ## Ví dụ với `getUpdates()`
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });

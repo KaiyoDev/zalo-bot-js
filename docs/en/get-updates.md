@@ -1,4 +1,4 @@
-# getUpdates
+﻿# getUpdates
 
 This page describes the `getUpdates()` and `getUpdate()` functions in `zalo-bot-js`, used to retrieve updates from the Bot API in a manual polling flow.
 
@@ -44,7 +44,6 @@ getUpdate(
 ## Example with `getUpdates()`
 
 ```ts
-import "dotenv/config";
 import { Bot } from "zalo-bot-js";
 
 const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
