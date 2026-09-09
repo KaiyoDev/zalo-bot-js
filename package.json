@@ -25,9 +25,9 @@
     "prepack": "npm run build",
     "prepublishOnly": "npm run build",
     "test:bot-api": "npm run build && node ./dist/test/bot-api.js",
-    "test:event-debug": "npm run build && node ./dist/test/event-debug.js",
-    "test:hello-bot": "npm run build && node ./dist/test/hello-bot.js",
-    "test:token": "npm run build && node ./dist/test/check-token.js",
+    "test:event-debug": "node --env-file=.env ./dist/test/event-debug.js",
+    "test:hello-bot": "node --env-file=.env ./dist/test/hello-bot.js",
+    "test:token": "node --env-file=.env ./dist/test/check-token.js",
     "smoke": "node -e \"const sdk=require('./dist/src/index.js'); const bot=new sdk.Bot({token:'test-token',request:{initialize:async()=>{},shutdown:async()=>{},post:async()=>({id:'1'})},pollingRequest:{initialize:async()=>{},shutdown:async()=>{},post:async()=>[]}}); if(!sdk.Bot||!sdk.ApplicationBuilder||!sdk.filters){throw new Error('SDK exports are incomplete');} if(typeof bot.on!=='function'||typeof bot.onText!=='function'||typeof bot.startPolling!=='function'||typeof bot.processUpdate!=='function'||typeof bot.setWebHook!=='function'){throw new Error('Node-style bot API is incomplete');} console.log('smoke ok');\"",
     "test": "npm run check && npm run build && npm run smoke && npm run test:bot-api"
   },
@@ -43,11 +43,5 @@
     "@types/node": "^25.5.2",
     "typescript": "^6.0.2",
     "vitepress": "^2.0.0-alpha.12"
-  },
-  "dependencies": {
-    "dotenv": "^17.4.0",
-    "sharp": "^0.34.5",
-    "sqlite3": "^6.0.1",
-    "translate-google": "^1.5.0"
   }
 }
