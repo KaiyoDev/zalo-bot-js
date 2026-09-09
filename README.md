@@ -133,6 +133,7 @@ There is **no built-in `/setadmin` or `/id` command**. Set `ZALO_BOT_ADMIN_ID` i
 - `sendPhoto(chatId, caption, url, opts?)`
 - `sendPhotos(chatId, urls[], caption?, opts?)` — sequential fallback with `[N/M]` labels
 - `sendSticker(chatId, stickerId, opts?)`
+- `sendVoice(chatId, voiceUrl, opts?)` — 1-on-1 only, `.aac` format
 - `sendChatAction(chatId, "typing")`
 - `editMessageText(chatId, messageId, text)`
 - `deleteMessage(chatId, messageId)`

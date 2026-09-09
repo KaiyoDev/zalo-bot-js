@@ -17,6 +17,7 @@ If you are just getting started, read [Getting started](./getting-started.md) fi
 - [sendMessage](./send-message.md)
 - [sendPhoto](./send-photo.md)
 - [sendSticker](./send-sticker.md)
+- [sendVoice](./send-voice.md)
 - [sendChatAction](./send-chat-action.md)
 
 ## Webhook group

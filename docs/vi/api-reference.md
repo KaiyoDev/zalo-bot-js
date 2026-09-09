@@ -17,6 +17,7 @@ Nếu bạn mới bắt đầu, hãy đọc [Bắt đầu nhanh](./getting-start
 - [sendMessage](./send-message.md)
 - [sendPhoto](./send-photo.md)
 - [sendSticker](./send-sticker.md)
+- [sendVoice](./send-voice.md)
 - [sendChatAction](./send-chat-action.md)
 
 ## Nhóm webhook
