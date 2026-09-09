@@ -147,6 +147,7 @@ There is **no built-in `/setadmin` or `/id` command**. Set `ZALO_BOT_ADMIN_ID` i
 - `setWebhook(url, secretToken, options?)` → returns `WebhookResult` with `url`, `updatedAt`, and `verification` status
 - `deleteWebhook(options?)`
 - `getWebhookInfo(options?)`
+- `testWebhook()` → returns `TestWebhookResult` to diagnose webhook reachability
 
 ### Event listeners
 

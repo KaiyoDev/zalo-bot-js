@@ -24,6 +24,7 @@ Nếu bạn mới bắt đầu, hãy đọc [Bắt đầu nhanh](./getting-start
 - [setWebhook](./set-webhook.md)
 - [deleteWebhook](./delete-webhook.md)
 - [getWebhookInfo](./get-webhook-info.md)
+- [testWebhook](./test-webhook.md)
 
 ## Nhóm event và xử lý update
 

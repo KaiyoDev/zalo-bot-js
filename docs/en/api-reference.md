@@ -24,6 +24,7 @@ If you are just getting started, read [Getting started](./getting-started.md) fi
 - [setWebhook](./set-webhook.md)
 - [deleteWebhook](./delete-webhook.md)
 - [getWebhookInfo](./get-webhook-info.md)
+- [testWebhook](./test-webhook.md)
 
 ## Event and update handling group
 
