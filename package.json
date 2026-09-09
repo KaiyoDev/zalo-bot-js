@@ -13,7 +13,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "READMEvi.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
