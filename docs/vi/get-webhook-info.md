@@ -20,11 +20,19 @@ getWebhookInfo(): Promise<WebhookInfo | undefined>
 
 Hàm trả về `Promise<WebhookInfo | undefined>`.
 
+```ts
+interface WebhookInfo {
+  url: string;
+  updatedAt?: string;
+  raw?: JsonObject;
+}
+```
+
 ## Ví dụ
 
 ```ts
 const info = await bot.getWebhookInfo();
-console.log(info);
+console.log(info?.url);
 ```
 
 ## Alias tương thích
@@ -41,6 +49,7 @@ Nếu bắt đầu project mới, nên ưu tiên dùng `getWebhookInfo()`.
 
 - hàm này chỉ đọc trạng thái, không thay đổi cấu hình
 - thường dùng cùng `setWebhook()` và `deleteWebhook()`
+- có thể gọi lại sau khi `setWebhook()` để xác nhận URL đã được lưu
 
 ## Kế tiếp
 

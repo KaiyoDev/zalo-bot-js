@@ -10,11 +10,29 @@ It is useful for checking whether the bot is currently configured for webhook de
 getWebhookInfo(): Promise<WebhookInfo | undefined>
 ```
 
+## When to use it
+
+- check if webhook is configured
+- verify the current webhook URL
+- debug production deployment state
+
+## Return value
+
+Returns `Promise<WebhookInfo | undefined>`.
+
+```ts
+interface WebhookInfo {
+  url: string;
+  updatedAt?: string;
+  raw?: JsonObject;
+}
+```
+
 ## Example
 
 ```ts
 const info = await bot.getWebhookInfo();
-console.log(info);
+console.log(info?.url);
 ```
 
 ## Compatibility alias
