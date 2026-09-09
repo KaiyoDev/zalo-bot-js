@@ -64,7 +64,7 @@ export class Update {
   }
 
   get command(): ParsedCommand | undefined {
-    return parseCommand(this.message?.text, this.effectiveUser?.id);
+    return parseCommand(this.message?.text, this.message?.bot?.cachedUser?.accountName);
   }
 
   static fromApi(data?: JsonObject, bot?: Bot): Update | undefined {
@@ -102,7 +102,7 @@ function asJsonObject(value: unknown): JsonObject | undefined {
   return value as JsonObject;
 }
 
-export function parseCommand(text: string | undefined, botAccountId?: string): ParsedCommand | undefined {
+export function parseCommand(text: string | undefined, botAccountName?: string): ParsedCommand | undefined {
   if (!text) {
     return undefined;
   }
@@ -110,11 +110,19 @@ export function parseCommand(text: string | undefined, botAccountId?: string): P
   let normalized = text.trim();
 
   // Handle @mention in groups: strip "@BotName " prefix
-  // Match @ followed by non-slash non-space chars, then whitespace
+  // If botAccountName is provided, use it for precise matching
   if (normalized.includes("@") && !normalized.startsWith("/")) {
-    const mentionMatch = normalized.match(/^@[^\s/]+\s+/i);
-    if (mentionMatch) {
-      normalized = normalized.slice(mentionMatch[0].length);
+    if (botAccountName) {
+      // Precise match: @BotName followed by space
+      const escapedName = botAccountName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const mentionRegex = new RegExp(`^@${escapedName}\\s+`, "i");
+      normalized = normalized.replace(mentionRegex, "");
+    } else {
+      // Fallback: match @ followed by non-space chars
+      const mentionMatch = normalized.match(/^@[^\s/]+\s+/i);
+      if (mentionMatch) {
+        normalized = normalized.slice(mentionMatch[0].length);
+      }
     }
   }
 
