@@ -1,4 +1,4 @@
-# Application
+﻿# Application
 
 Trang này mô tả `Application` trong `zalo-bot-js`, lớp điều phối theo kiểu handler-based dùng cùng `ApplicationBuilder`, `CommandHandler` và `MessageHandler`.
 
@@ -33,7 +33,6 @@ Dừng polling hiện tại bằng cách gọi `bot.stopPolling()`.
 ## Ví dụ
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder, CommandHandler } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()

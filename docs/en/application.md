@@ -1,4 +1,4 @@
-# Application
+﻿# Application
 
 This page describes `Application` in `zalo-bot-js`, a handler-based dispatcher class used with `ApplicationBuilder`, `CommandHandler`, and `MessageHandler`.
 
@@ -33,7 +33,6 @@ Stop current polling by calling `bot.stopPolling()`.
 ## For example
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder, CommandHandler } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()

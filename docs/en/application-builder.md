@@ -1,4 +1,4 @@
-# ApplicationBuilder
+﻿# ApplicationBuilder
 
 This page describes `ApplicationBuilder` in `zalo-bot-js`, which is used to configure and create `Application` in builder style.
 
@@ -15,7 +15,6 @@ This is the right choice if you want to organize your bot in a handler-based sty
 ## For example
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()

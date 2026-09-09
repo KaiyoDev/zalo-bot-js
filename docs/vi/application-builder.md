@@ -1,4 +1,4 @@
-# ApplicationBuilder
+﻿# ApplicationBuilder
 
 Trang này mô tả `ApplicationBuilder` trong `zalo-bot-js`, dùng để cấu hình và tạo `Application` theo phong cách builder.
 
@@ -15,7 +15,6 @@ Trang này mô tả `ApplicationBuilder` trong `zalo-bot-js`, dùng để cấu 
 ## Ví dụ
 
 ```ts
-import "dotenv/config";
 import { ApplicationBuilder } from "zalo-bot-js";
 
 const app = new ApplicationBuilder()
