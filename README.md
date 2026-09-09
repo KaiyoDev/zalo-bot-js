@@ -4,7 +4,7 @@
 
 `zalo-bot-js` is a zero-dependency TypeScript SDK for the Zalo Bot API, designed for Node.js developers who want a clean bot runtime with polling, webhook handling, event listeners, and a TypeScript-friendly structure.
 
-[Docs public](https://kaiyodev.github.io/zalo-bot-js) | [Tiếng Việt](https://kaiyodev.github.io/zalo-bot-js/vi/) | [English docs](https://kaiyodev.github.io/zalo-bot-js/en/)
+[Tiếng Việt](./READMEvi.md) · [Docs public](https://kaiyodev.github.io/zalo-bot-js) | [Tiếng Việt](https://kaiyodev.github.io/zalo-bot-js/vi/) | [English docs](https://kaiyodev.github.io/zalo-bot-js/en/)
 
 ## What You Get
 
