@@ -152,6 +152,16 @@ async function main() {
     text: "[1/2] Album fallback from SDK",
   } satisfies JsonObject;
 
+  const sendVoiceResult = {
+    message_id: "m-voice",
+    date: Date.now(),
+    chat: {
+      id: "chat-1",
+      type: "direct",
+    },
+    voice_url: "https://example.com/audio.aac",
+  } satisfies JsonObject;
+
   const editMessageResult = {
     message_id: "m-edit",
     date: Date.now(),
@@ -214,6 +224,7 @@ async function main() {
         hint: "Your endpoint responded successfully.",
       },
     },
+    sendVoice: sendVoiceResult,
     deleteWebhook: true,
     getWebhookInfo: webhookInfoResult,
   });
@@ -438,6 +449,10 @@ async function main() {
   const uploadedFile = await bot.uploadFile("https://example.com/files/1.jpg");
   const fileInfo = await bot.getFileInfo("file-1");
   const fileUrl = await bot.getFileDownloadUrl("file-1");
+  const voiceSent = await bot.sendVoice("chat-1", "https://example.com/audio.aac");
+  if (voiceSent.messageId !== "m-voice") {
+    throw new Error("sendVoice did not return parsed message");
+  }
   if (
     !deleted ||
     !pinned ||

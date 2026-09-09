@@ -55,6 +55,7 @@ export type {
   SendPhotoOptions,
   SendPhotosOptions,
   SendStickerOptions,
+  SendVoiceOptions,
   SetChatKeyboardOptions,
   TextStyleRun,
   UnbanUserOptions,

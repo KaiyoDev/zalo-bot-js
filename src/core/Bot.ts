@@ -67,6 +67,11 @@ export interface SendPhotosOptions extends SendMessageOptions {
   separator?: string;
 }
 
+export interface SendVoiceOptions {
+  reply_to_message_id?: string;
+  requestOptions?: RequestOptions;
+}
+
 export interface EditMessageTextOptions {
   requestOptions?: RequestOptions;
 }
@@ -351,6 +356,18 @@ export class Bot {
     return this.sendMessageLike("sendSticker", {
       chat_id: chatId,
       sticker,
+      reply_to_message_id: options?.reply_to_message_id,
+    }, options?.requestOptions);
+  }
+
+  async sendVoice(
+    chatId: string,
+    voiceUrl: string,
+    options?: SendVoiceOptions,
+  ): Promise<Message> {
+    return this.sendMessageLike("sendVoice", {
+      chat_id: chatId,
+      voice_url: voiceUrl,
       reply_to_message_id: options?.reply_to_message_id,
     }, options?.requestOptions);
   }
