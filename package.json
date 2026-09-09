@@ -1,7 +1,7 @@
 {
   "name": "zalo-bot-js",
-  "version": "0.2.1",
-  "description": "TypeScript SDK for the Zalo Bot API.",
+  "version": "0.2.3",
+  "description": "Zero-dependency TypeScript SDK for the Zalo Bot API — polling, webhook, event listeners, and handler-based routing.",
   "homepage": "https://kaiyodev.github.io/zalo-bot-js/",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -39,7 +39,18 @@
     "type": "git",
     "url": "git+https://github.com/KaiyoDev/zalo-bot-js.git"
   },
-  "keywords": [],
+  "keywords": [
+    "zalo",
+    "zalo-bot",
+    "zalo-bot-js",
+    "bot",
+    "sdk",
+    "typescript",
+    "chatbot",
+    "messenger",
+    "polling",
+    "webhook"
+  ],
   "author": "KaiyoDev",
   "license": "MIT",
   "type": "commonjs",
