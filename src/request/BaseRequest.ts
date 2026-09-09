@@ -19,7 +19,7 @@ import type {
 } from "../types";
 
 export interface RequestPayload {
-  [key: string]: string | number | boolean | null | undefined;
+  [key: string]: string | number | boolean | null | undefined | unknown;
 }
 
 export interface TransportResponse {

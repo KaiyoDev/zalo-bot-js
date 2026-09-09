@@ -44,8 +44,18 @@ export interface PollingOptions {
   requestOptions?: RequestOptions;
 }
 
+export type ParseMode = "markdown" | "html";
+
+export interface TextStyleRun {
+  start: number;
+  len: number;
+  st: string[];
+}
+
 export interface SendMessageOptions {
   reply_to_message_id?: string;
+  parse_mode?: ParseMode;
+  text_styles?: TextStyleRun[];
   requestOptions?: RequestOptions;
 }
 
@@ -314,6 +324,8 @@ export class Bot {
       chat_id: chatId,
       text,
       reply_to_message_id: options?.reply_to_message_id,
+      parse_mode: options?.parse_mode,
+      text_styles: options?.text_styles,
     }, options?.requestOptions);
   }
 
