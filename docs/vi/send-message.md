@@ -1,4 +1,4 @@
-﻿# Gửi tin nhắn văn bản
+# Gửi tin nhắn văn bản
 
 Trang này mô tả hàm `sendMessage()` trong `zalo-bot-js`, dùng để gửi tin nhắn văn bản đến người dùng hoặc cuộc trò chuyện từ chính SDK của dự án.
 
@@ -10,7 +10,7 @@ Nếu bạn đang xây bot phản hồi tin nhắn, gửi thông báo từ workf
 sendMessage(
   chatId: string,
   text: string,
-  options?: { reply_to_message_id?: string },
+  options?: SendMessageOptions,
 ): Promise<Message>
 ```
 
@@ -28,20 +28,87 @@ Bạn nên dùng `sendMessage()` khi cần:
 | Tham số | Kiểu dữ liệu | Bắt buộc | Mô tả |
 | --- | --- | --- | --- |
 | `chatId` | `string` | Có | ID của người nhận hoặc cuộc trò chuyện |
-| `text` | `string` | Có | Nội dung tin nhắn văn bản |
+| `text` | `string` | Có | Nội dung tin nhắn văn bản (1–2000 ký tự) |
 | `options.reply_to_message_id` | `string` | Không | ID tin nhắn cần reply trực tiếp |
+| `options.parse_mode` | `ParseMode` | Không | Bật định dạng rich text: `"markdown"` hoặc `"html"` |
+| `options.text_styles` | `TextStyleRun[]` | Không | Các đoạn định dạng áp trực tiếp lên text thô |
+
+## Định dạng văn bản (Rich Text)
+
+Bot hỗ trợ hai cách gửi tin nhắn có định dạng:
+
+### Cách 1: dùng `parse_mode`
+
+Đặt `parse_mode` là `"markdown"` hoặc `"html"` và viết nội dung có markup trực tiếp trong `text`. Server sẽ tự phân tích và áp dụng định dạng.
+
+**Markdown:**
+
+```ts
+await bot.sendMessage(chatId, "**Xin chào** _bạn_, đây là tin nhắn **đậm** và *nghiêng*", {
+  parse_mode: "markdown",
+});
+```
+
+Cú pháp Markdown hỗ trợ:
+
+| Cú pháp | Kết quả |
+|---|---|
+| `**đậm**`, `__đậm__` | In đậm |
+| `*nghiêng*`, `_nghiêng_` | In nghiêng |
+| `***đậm nghiêng***` | In đậm + in nghiêng |
+| `~~gạch~~` | Gạch ngang |
+| `` `code` `` | Giữ nguyên (monospace) |
+| `{red}…{/red}` | Màu chữ |
+| `{big}…{/big}` | Cỡ chữ lớn |
+
+**HTML:**
+
+```ts
+await bot.sendMessage(chatId, "<b>Xin chào</b> <i>bạn</i>", {
+  parse_mode: "html",
+});
+```
+
+Thẻ HTML hỗ trợ: `<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<s>`, `<del>`, `<h1>`–`<h6>`, `<ul>`, `<ol>`, `<li>`, `<p>`, `<div>`, `style="..."`.
+
+### Cách 2: dùng `text_styles`
+
+Gửi danh sách các đoạn định dạng áp trực tiếp lên text thô. Mỗi phần tử gồm vị trí bắt đầu, độ dài và danh sách mã định dạng.
+
+```ts
+await bot.sendMessage(chatId, "Xin chào bạn", {
+  text_styles: [
+    { start: 0, len: 7, st: ["b", "c_db342e"] }, // đậm + đỏ
+    { start: 8, len: 4, st: ["i"] },             // nghiêng
+  ],
+});
+```
+
+Bảng mã định dạng (`st`) hỗ trợ:
+
+| Mã | Ý nghĩa |
+|---|---|
+| `b` | In đậm |
+| `i` | In nghiêng |
+| `u` | Gạch chân |
+| `s` | Gạch ngang |
+| `f_13`, `f_15`, `f_18`, `f_20` | Cỡ chữ (nhỏ / thường / lớn / rất lớn) |
+| `c_050a19` | Màu mặc định |
+| `c_15a85f` | Màu xanh lá |
+| `c_f7b503` | Màu vàng |
+| `c_f27806` | Màu cam |
+| `c_db342e` | Màu đỏ |
+| `lst_1` | Danh sách không thứ tự |
+| `lst_2` | Danh sách có thứ tự |
+| `ind_1`–`ind_5` | Mức thụt lề |
+
+### Thứ tự ưu tiên
+
+Nếu cả `parse_mode` và `text_styles` cùng được gửi, `parse_mode` sẽ được ưu tiên và `text_styles` sẽ bị bỏ qua. Hai trường này dùng hệ tọa độ offset khác nhau nên không thể kết hợp đồng thời.
 
 ## Giá trị trả về
 
 Hàm trả về `Promise<Message>`.
-
-Khi thành công, bạn nhận được một instance `Message` đã được parse từ phản hồi API, có thể dùng tiếp các thuộc tính như:
-
-- `messageId`
-- `date`
-- `chat`
-- `text`
-- `raw`
 
 ## Ví dụ tối thiểu
 
@@ -53,11 +120,28 @@ const bot = new Bot({ token: process.env.ZALO_BOT_TOKEN! });
 async function main() {
   const chatId = process.env.ZALO_CHAT_ID!;
   const message = await bot.sendMessage(chatId, "Xin chào!");
-
   console.log(message.messageId);
 }
 
 void main();
+```
+
+## Ví dụ với markdown
+
+```ts
+await bot.sendMessage(chatId, "**In đậm** và *in nghiêng*", {
+  parse_mode: "markdown",
+});
+```
+
+## Ví dụ với text_styles
+
+```ts
+await bot.sendMessage(chatId, "Màu cam", {
+  text_styles: [
+    { start: 0, len: 7, st: ["b", "c_f27806"] }, // đậm màu cam
+  ],
+});
 ```
 
 ## Ví dụ dùng trong polling
@@ -73,7 +157,6 @@ bot.on("text", async (message) => {
   if (!message.text) {
     return;
   }
-
   await bot.sendMessage(message.chat.id, `Bạn vừa gửi: ${message.text}`);
 });
 
@@ -142,118 +225,16 @@ bot.on("text", async (message) => {
 });
 ```
 
-Khi nên dùng `replyText()`:
-
-- callback đang xử lý đúng một `Message`
-- bạn chỉ muốn trả lời ngay trong cùng cuộc trò chuyện
-- bạn muốn code ngắn gọn hơn
-
-Khi nên dùng `sendMessage()` trực tiếp:
-
-- bạn gửi tới một `chat_id` khác
-- bạn muốn truyền `reply_to_message_id` rõ ràng
-- bạn đang gửi từ service hoặc workflow không có sẵn instance `Message`
-
-## Cách hàm này hoạt động trong dự án
-
-```ts
-await bot.sendMessage(chatId, "Xin chào!");
-```
-
-Điều này quan trọng vì:
-
-- ứng dụng chỉ nên phụ thuộc vào public API của thư viện
-- dữ liệu trả về được parse sẵn thành `Message`
-- phần mapping lỗi và request được SDK xử lý nội bộ
-
-Nếu cần đối chiếu với Bot API gốc, có thể hiểu rằng `sendMessage()` nội bộ sẽ gọi xuống method `sendMessage` của transport layer. Tuy nhiên tài liệu của repo này ưu tiên mô tả hành vi ở mức SDK, không khuyến khích người dùng ghép URL thủ công.
-
-## Biến môi trường thường dùng
-
-Để chạy ví dụ trong repo, bạn thường cần:
-
-```dotenv
-ZALO_BOT_TOKEN=your_zalo_bot_token_here
-ZALO_CHAT_ID=abc.xyz
-ZALO_BOT_LANG=vi
-```
-
-Ý nghĩa:
-
-- `ZALO_BOT_TOKEN`: token bot
-- `ZALO_CHAT_ID`: `chat_id` đích khi gửi chủ động
-- `ZALO_BOT_LANG`: ngôn ngữ runtime của SDK
-
-## Luồng xử lý điển hình
-
-Khi gọi `sendMessage()`, luồng xử lý trong SDK diễn ra theo thứ tự:
-
-1. ứng dụng gọi `bot.sendMessage(chatId, text, options)`
-2. `Bot` chuẩn hóa payload gửi đi
-3. request layer gọi Bot API `sendMessage`
-4. phản hồi được parse thành `Message`
-5. hàm trả về `Promise<Message>` cho ứng dụng
-
-## Kiểm tra dữ liệu trước khi gửi
-
-Trước khi gọi `sendMessage()`, bạn nên đảm bảo:
-
-- `chatId` không rỗng
-- `text` không rỗng
-- nội dung phù hợp với ngữ cảnh bot
-- nếu reply, `reply_to_message_id` là ID hợp lệ
-
-Ví dụ:
-
-```ts
-function validateSendMessageInput(chatId: string, text: string) {
-  if (!chatId) {
-    throw new Error("chatId là bắt buộc");
-  }
-
-  if (!text || !text.trim()) {
-    throw new Error("text là bắt buộc");
-  }
-}
-```
-
-## Xử lý lỗi
-
-Một số lỗi thường gặp khi dùng `sendMessage()`:
-
-- token không hợp lệ
-- `chatId` sai hoặc không còn khả dụng
-- lỗi mạng hoặc timeout
-- API trả lỗi tạm thời
-
-Ví dụ:
-
-```ts
-import { Bot, InvalidToken, NetworkError } from "zalo-bot-js";
-
-try {
-  await bot.sendMessage("abc.xyz", "Xin chào");
-} catch (error) {
-  if (error instanceof InvalidToken) {
-    console.error("Token bot không hợp lệ");
-  } else if (error instanceof NetworkError) {
-    console.error("Không thể kết nối tới Bot API");
-  } else {
-    console.error(error);
-  }
-}
-```
-
 ## Lưu ý thực tế
 
 - `sendMessage()` chỉ dùng cho tin nhắn văn bản
 - nếu cần gửi ảnh hoặc sticker, dùng `sendPhoto()` hoặc `sendSticker()`
 - trong callback xử lý event, nên tránh gửi lặp nhiều lần không kiểm soát
-- nếu dùng cùng n8n hoặc workflow ngoài, nên đặt timeout và fallback message ở lớp ứng dụng
+- `parse_mode` và `text_styles` không thể dùng cùng lúc — `parse_mode` có độ ưu tiên cao hơn
 
 ## Kế tiếp
 
 - Đọc [API Reference](./api-reference.md) để xem vị trí của `sendMessage()` trong toàn bộ SDK.
 - Xem [Ví dụ và test](./examples.md) để áp dụng `sendMessage()` trong bot polling hoặc webhook.
 
-Cập nhật lần cuối: 05/04/2026
+Cập nhật lần cuối: 07/09/2026
