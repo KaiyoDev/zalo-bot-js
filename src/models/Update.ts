@@ -110,9 +110,12 @@ export function parseCommand(text: string | undefined, botAccountId?: string): P
   let normalized = text.trim();
 
   // Handle @mention in groups: strip "@BotName " prefix
-  if (botAccountId && normalized.includes("@")) {
-    const mentionRegex = new RegExp(`^@[\\w\\s]+\\s+`, "i");
-    normalized = normalized.replace(mentionRegex, "");
+  // Match @ followed by non-slash non-space chars, then whitespace
+  if (normalized.includes("@") && !normalized.startsWith("/")) {
+    const mentionMatch = normalized.match(/^@[^\s/]+\s+/i);
+    if (mentionMatch) {
+      normalized = normalized.slice(mentionMatch[0].length);
+    }
   }
 
   if (!normalized.startsWith("/") || normalized.length <= 1) {
